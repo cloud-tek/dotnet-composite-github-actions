@@ -30,7 +30,18 @@ runs:
       name: dotnet add package LiquidTestReports.Markdown
       working-directory: ${{ inputs.testsDirectory }}
       shell: bash
-    - run: dotnet test --framework ${{ inputs.framework }}
+    - name: set test title
+      shell: bash
+      run: | 
+        if ${{ github.event_name == 'pull_request' }}
+        then
+          echo "::set-env name=title::Test Run for PR #${{ steps.PRNUMBER.outputs.pr }} (${{ inputs.framework }}, ${{ github.run_number }})"
+          echo "::set-env name=file_name::TestReport.${{ inputs.framework }}.${{ steps.PRNUMBER.outputs.pr }}.${{ github.run_number }}.md"
+        else
+          echo "::set-env name=title::Test Run ${{ inputs.framework }} ${{ github.run_number }}"
+          echo "::set-env name=file_name::TestReport.${{ inputs.framework }}.${{ github.run_number }}.md"
+        fi
+    - run: dotnet test --framework ${{ inputs.framework }} --logger:"liquid.md;LogFileName=${{ github.workspace }}/${{ env.file_name }};Title=${{ env.title }};"
       name: dotnet test
       working-directory: ${{ inputs.testsDirectory }}
       shell: bash
