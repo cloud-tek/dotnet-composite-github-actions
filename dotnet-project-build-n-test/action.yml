@@ -15,6 +15,9 @@ outputs:
   test-results:
     description: Location of the test results file
     value: ${{ steps.dotnet-test.outputs.test-results }}
+  test-results-title:
+    description: Title of the test results
+    value: ${{ steps.dotnet-test.outputs.test-results-title }}
 runs:
   using: "composite"
   steps:
@@ -48,3 +51,4 @@ runs:
       run: | 
         dotnet test --framework ${{ inputs.framework }} --logger:"liquid.md;LogFileName=${{ github.workspace }}/${{ env.file_name }};Title=${{ env.title }};"
         echo "::set-output name=test-results::${{ github.workspace }}/${{ env.file_name }}"
+        echo "::set-output name=test-results-title::${{ env.title }}"
