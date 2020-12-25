@@ -11,10 +11,10 @@ inputs:
   testsDirectory:
     description: "Tests directory"
     required: true
-# outputs:
-#   random-number:
-#     description: "Random number"
-#     value: ${{ steps.random-number-generator.outputs.random-id }}
+outputs:
+  test-results:
+    description: Location of the test results file
+    value: ${{ steps.dotnet-test.outputs.test-results }}
 runs:
   using: "composite"
   steps:
@@ -41,20 +41,10 @@ runs:
           echo "::set-env name=title::Test Run ${{ inputs.framework }} ${{ github.run_number }}"
           echo "::set-env name=file_name::TestReport.${{ inputs.framework }}.${{ github.run_number }}.md"
         fi
-    - run: dotnet test --framework ${{ inputs.framework }} --logger:"liquid.md;LogFileName=${{ github.workspace }}/${{ env.file_name }};Title=${{ env.title }};"
+    - id: dotnet-test
       name: dotnet test
-      working-directory: ${{ inputs.testsDirectory }}
       shell: bash
-    - name: upload build artifact
-      uses: actions/upload-artifact@v2
-      if: ${{always()}}
-      with:
-        name: 'Test Run'
-        path: ${{github.workspace}}/${{env.file_name}}
-    - name: comment PR
-      uses: machine-learning-apps/pr-comment@master
-      if: ${{ github.event_name == 'pull_request' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        path: ${{env.file_name}}
+      working-directory: ${{ inputs.testsDirectory }}
+      run: | 
+        dotnet test --framework ${{ inputs.framework }} --logger:"liquid.md;LogFileName=${{ github.workspace }}/${{ env.file_name }};Title=${{ env.title }};"
+        echo "::set-output name=test-results::${{ github.workspace }}/${{ env.file_name }}"
