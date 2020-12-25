@@ -1,54 +1,36 @@
-name: 'dotnet-project-build-n-test'
-description: 'Builds and tests a .NET project'
+name: "dotnet-project-build-n-test"
+description: "Builds and tests a .NET project"
 inputs:
   framework:
     description: ".NET target framework"
     required: true
     default: net5.0
   projectDirectory:
-    description: 'Project directory'
+    description: "Project directory"
     required: true
   testsDirectory:
-    description: 'Tests directory'
+    description: "Tests directory"
     required: true
-  # who-to-greet:  # id of input
-  #   description: 'Who to greet'
-  #   required: true
-  #   default: 'World'
 # outputs:
-#   random-number: 
+#   random-number:
 #     description: "Random number"
 #     value: ${{ steps.random-number-generator.outputs.random-id }}
 runs:
   using: "composite"
-  steps: 
-    # - run: echo Hello ${{ inputs.who-to-greet }}.
-    #   shell: bash
-    # - id: random-number-generator
-    #   run: echo "::set-output name=random-id::$(echo $RANDOM)"
-    #   shell: bash
-    # - run: ${{ github.action_path }}/goodbye.sh
-    #   shell: bash
-
-  # - uses: actions/checkout@v2
-  #   name: checkout
-  # - uses: actions/setup-dotnet@v1
-  #   name: dotnet installer
-  #   with:
-  #     dotnet-version: ${{ inputs.framework }}
-  - run: dotnet restore
-    name: dotnet restore
-    working-directory: ${{ inputs.projectDirectory }}
-    shell: bash
-  - run: dotnet build --no-restore --framework ${{ inputs.framework }}
-    name: dotnet build
-    working-directory: ${{ inputs.projectDirectory }}
-    shell: bash
-  - run: dotnet add package LiquidTestReports.Markdown --version 1.0.9
-    name: dotnet add package LiquidTestReports.Markdown
-    working-directory: ${{ inputs.testsDirectory }}
-    shell: bash
-  - run: dotnet test --framework ${{ inputs.framework }}
-    name: dotnet test
-    working-directory: ${{ inputs.testsDirectory }}
-    shell: bash
+  steps:
+    - run: dotnet restore
+      name: dotnet restore
+      working-directory: ${{ inputs.projectDirectory }}
+      shell: bash
+    - run: dotnet build --no-restore --framework ${{ inputs.framework }}
+      name: dotnet build
+      working-directory: ${{ inputs.projectDirectory }}
+      shell: bash
+    - run: dotnet add package LiquidTestReports.Markdown --version 1.0.9
+      name: dotnet add package LiquidTestReports.Markdown
+      working-directory: ${{ inputs.testsDirectory }}
+      shell: bash
+    - run: dotnet test --framework ${{ inputs.framework }}
+      name: dotnet test
+      working-directory: ${{ inputs.testsDirectory }}
+      shell: bash
